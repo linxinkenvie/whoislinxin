@@ -25,47 +25,46 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 				<div class="terminal-spacer"></div>
 			</header>
 
+			<pre class="ghost-text" aria-hidden="true">linxin@whoislinxin:~$ whois --deep linxin &amp;
+[1] 42069
+
+ __        ___   _  ___
+ \ \      / / | | |/ _ \
+  \ \ /\ / /| |_| | | | |
+   \ V  V / |  _  | |_| |
+    \_/\_/  |_| |_|\___/
+
+ THE FUCK IS LINXIN?
+
+[still waiting for answer<span class="waiting-dots"></span>]</pre>
+
 			<section class="terminal">
 				<div id="boot-output">
-					<div class="terminal-intro">
-						<div class="profile-output">
-							<div class="command">
-								<span class="user">linxin@whoislinxin</span><span class="separator">:</span><span class="path">~</span><span class="prompt">$</span>
-								<span>whois linxin</span>
-							</div>
+					<div class="command">
+						<span class="user">linxin@whoislinxin</span><span class="separator">:</span><span class="path">~</span><span class="prompt">$</span>
+						<span>whois linxin</span>
+					</div>
 
-							<div class="output whois-output">
-								<div class="field">
-									<span class="label">NAME</span>
-									<span>Linxin</span>
-								</div>
-
-								<div class="field">
-									<span class="label">STATUS</span>
-									<span>Building things.</span>
-								</div>
-
-								<div class="field">
-									<span class="label">INTERESTS</span>
-									<span>AI / Programming Languages / Linux</span>
-								</div>
-
-								<div class="field">
-									<span class="label">DOMAIN</span>
-									<span>whoislinxin.com</span>
-								</div>
-							</div>
+					<div class="output whois-output">
+						<div class="field">
+							<span class="label">NAME</span>
+							<span>Linxin</span>
 						</div>
 
-						<aside class="ascii-brand" aria-hidden="true">
-							<pre class="ascii-logo">██╗    ██╗██╗  ██╗ ██████╗ ██╗███████╗
-██║    ██║██║  ██║██╔═══██╗██║██╔════╝
-██║ █╗ ██║███████║██║   ██║██║███████╗
-██║███╗██║██╔══██║██║   ██║██║╚════██║
-╚███╔███╔╝██║  ██║╚██████╔╝██║███████║
- ╚══╝╚══╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝╚══════╝</pre>
-							<div class="ascii-tagline">WHO IS LINXIN?</div>
-						</aside>
+						<div class="field">
+							<span class="label">STATUS</span>
+							<span>Building things.</span>
+						</div>
+
+						<div class="field">
+							<span class="label">INTERESTS</span>
+							<span>AI / Programming Languages / Linux</span>
+						</div>
+
+						<div class="field">
+							<span class="label">DOMAIN</span>
+							<span>whoislinxin.com</span>
+						</div>
 					</div>
 
 					<div class="command">
@@ -82,6 +81,11 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 				<div id="terminal-history" aria-live="polite"></div>
 
+				<p class="hint">
+					Type <strong>help</strong> or <strong>ls</strong>.
+					<span>Tab completes · ↑/↓ history · Ctrl+L clears</span>
+				</p>
+
 				<form id="terminal-form" class="command current-line" autocomplete="off">
 					<span class="user">linxin@whoislinxin</span><span class="separator">:</span><span class="path">~</span><span class="prompt">$</span>
 					<label class="input-shell">
@@ -91,7 +95,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 							class="terminal-input"
 							type="text"
 							placeholder=" "
-							autocapitalize="none"
+							autocapitalize="off"
 							spellcheck="false"
 							aria-label="Terminal command"
 						/>
@@ -115,6 +119,25 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 		const commandHistory: string[] = [];
 		let historyIndex = 0;
+		const completions = [
+			'help',
+			'ls',
+			'pwd',
+			'whoami',
+			'whois linxin',
+			'cd blog',
+			'cd about',
+			'cd github',
+			'blog',
+			'about',
+			'github',
+			'cat about',
+			'open github',
+			'clear',
+			'sudo',
+			'rm -rf /',
+			'who the fuck is linxin',
+		];
 
 		const createSpan = (className: string, text: string) => {
 			const span = document.createElement('span');
@@ -179,17 +202,36 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 		const openGitHub = () => {
 			const url = 'https://github.com/linxinkenvie';
-			appendLines([`→ ${url}`], 'success');
 			const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
 			if (newWindow) newWindow.opener = null;
+			appendLines(['Opening github.com/linxinkenvie ...'], 'success');
+		};
+
+		const clearTerminal = () => {
+			bootOutput.hidden = true;
+			historyOutput.replaceChildren();
+		};
+
+		const longestCommonPrefix = (values: string[]) => {
+			if (!values.length) return '';
+
+			let prefix = values[0];
+
+			for (const value of values.slice(1)) {
+				while (!value.startsWith(prefix)) {
+					prefix = prefix.slice(0, -1);
+					if (!prefix) return '';
+				}
+			}
+
+			return prefix;
 		};
 
 		const runCommand = (rawCommand: string) => {
-			const normalized = rawCommand.toLowerCase().replace(/\s+/g, ' ').replace(/\/+$/, '');
+			const normalized = rawCommand.toLowerCase().replace(/\s+/g, ' ');
 
 			if (normalized === 'clear') {
-				bootOutput.hidden = true;
-				historyOutput.replaceChildren();
+				clearTerminal();
 				return;
 			}
 
@@ -199,15 +241,27 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 				case 'help':
 					appendLines([
 						'Available commands:',
+						'',
 						'  whois linxin    display profile',
-						'  ls              list destinations',
+						'  whoami          print current user',
 						'  pwd             print working directory',
-						'  cd blog         open blog',
-						'  cd about        open about page',
-						'  cat about       show a short bio',
-						'  github          open GitHub',
-						'  open github     open GitHub',
+						'  ls              list destinations',
+						'',
+						'  cd blog         open the blog',
+						'  cd about        open the about page',
+						'  cd github       open GitHub',
+						'',
 						'  clear           clear terminal',
+						'',
+						'Navigation aliases:',
+						'  blog',
+						'  about',
+						'  github',
+						'',
+						'Keyboard:',
+						'  Tab             autocomplete',
+						'  ↑ / ↓           command history',
+						'  Ctrl+L          clear terminal',
 					]);
 					break;
 
@@ -229,6 +283,10 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 					appendLines(['/home/linxin']);
 					break;
 
+				case 'whoami':
+					appendLines(['linxin']);
+					break;
+
 				case 'cat about':
 					appendLines([
 						'Linxin',
@@ -237,24 +295,50 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 					]);
 					break;
 
+				case 'blog':
 				case 'cd blog':
+				case 'cd blog/':
 					navigateTo('/blog/');
 					break;
 
+				case 'about':
 				case 'cd about':
+				case 'cd about/':
 					navigateTo('/about/');
 					break;
 
 				case 'github':
+				case 'cd github':
+				case 'cd github/':
 				case 'open github':
 					openGitHub();
 					break;
 
-				default:
+				case 'who the fuck is linxin':
+					appendLines(["That's what this website is trying to figure out."]);
+					break;
+
+				case 'rm -rf /':
+				case 'rm -rf --no-preserve-root /':
 					appendLines([
-						`command not found: ${rawCommand}`,
-						'type "help" to list available commands',
+						"rm: cannot remove '/': Read-only file system",
+						'',
+						"whoislinxin.com: I'm afraid I can't let you do that.",
 					], 'error');
+					break;
+
+				default:
+					if (normalized === 'sudo' || normalized.startsWith('sudo ')) {
+						appendLines([
+							'linxin is not in the sudoers file.',
+							'This incident will be reported.',
+							'',
+							'Nice try.',
+						], 'error');
+						break;
+					}
+
+					appendLines([`${rawCommand}: command not found. Try 'help'.`], 'error');
 			}
 
 			historyOutput.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -273,14 +357,48 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 		});
 
 		input.addEventListener('keydown', (event) => {
+			if (event.ctrlKey && event.key.toLowerCase() === 'l') {
+				event.preventDefault();
+				clearTerminal();
+				return;
+			}
+
 			if (event.key === 'Enter') {
 				event.preventDefault();
 				form.requestSubmit();
 				return;
 			}
 
+			if (event.key === 'Tab') {
+				event.preventDefault();
+
+				const value = input.value.toLowerCase();
+				const matches = completions.filter((command) => command.startsWith(value));
+
+				if (matches.length === 1) {
+					input.value = matches[0];
+					input.setSelectionRange(input.value.length, input.value.length);
+					return;
+				}
+
+				if (matches.length > 1) {
+					const prefix = longestCommonPrefix(matches);
+
+					if (prefix.length > value.length) {
+						input.value = prefix;
+						input.setSelectionRange(input.value.length, input.value.length);
+					} else {
+						appendLines([matches.join('    ')], 'muted');
+						historyOutput.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+					}
+				}
+
+				return;
+			}
+
 			if (event.key === 'ArrowUp') {
 				event.preventDefault();
+				if (!commandHistory.length) return;
 				historyIndex = Math.max(0, historyIndex - 1);
 				input.value = commandHistory[historyIndex] ?? '';
 				input.setSelectionRange(input.value.length, input.value.length);
@@ -288,6 +406,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 			if (event.key === 'ArrowDown') {
 				event.preventDefault();
+				if (!commandHistory.length) return;
 				historyIndex = Math.min(commandHistory.length, historyIndex + 1);
 				input.value = commandHistory[historyIndex] ?? '';
 				input.setSelectionRange(input.value.length, input.value.length);
@@ -323,6 +442,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	}
 
 	:global(body) {
+		min-height: 100vh;
 		color: #d7dde5;
 		font-family:
 			"SFMono-Regular",
@@ -333,6 +453,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	}
 
 	.terminal-window {
+		position: relative;
 		width: 100%;
 		max-width: none;
 		min-height: 100vh;
@@ -340,6 +461,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 		padding: 0;
 		display: flex;
 		flex-direction: column;
+		overflow: hidden;
 		background: #090c10;
 	}
 
@@ -349,6 +471,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 		grid-template-columns: 1fr auto 1fr;
 		align-items: center;
 		padding: 0 16px;
+		box-sizing: border-box;
 		background: #161b22;
 		border-bottom: 1px solid #282f38;
 		user-select: none;
@@ -384,50 +507,48 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	}
 
 	.terminal {
+		position: relative;
+		z-index: 2;
 		width: 100%;
 		box-sizing: border-box;
-		padding: 90px clamp(32px, 7vw, 120px) 120px;
+		padding: 72px clamp(32px, 6.5vw, 120px) 120px;
 		flex: 1;
-		font-size: clamp(1rem, 1.15vw, 1.25rem);
+		font-size: clamp(1rem, 1.05vw, 1.2rem);
 		line-height: 1.75;
 	}
 
-	.terminal-intro {
-		display: grid;
-		grid-template-columns: minmax(520px, 0.95fr) minmax(480px, 1.05fr);
-		gap: clamp(48px, 6vw, 112px);
-		align-items: start;
-	}
-
-	.profile-output {
-		min-width: 0;
-	}
-
-	.ascii-brand {
-		min-width: 0;
-		padding-top: 4px;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		color: #484f58;
+	.ghost-text {
+		position: fixed;
+		right: clamp(80px, 8vw, 160px);
+		top: 50%;
+		z-index: 1;
+		transform: translateY(-50%);
+		margin: 0;
+		padding: 0;
+		color: #7ee787;
+		opacity: 0.07;
+		font-family:
+			"SFMono-Regular",
+			Consolas,
+			"Liberation Mono",
+			Menlo,
+			monospace;
+		font-size: clamp(0.9rem, 1.15vw, 1.3rem);
+		font-weight: 700;
+		line-height: 1.15;
+		white-space: pre;
+		pointer-events: none;
 		user-select: none;
 	}
 
-	.ascii-logo {
-		margin: 0;
-		font: inherit;
-		font-size: clamp(0.7rem, 0.85vw, 1rem);
-		font-weight: 700;
-		line-height: 1.35;
-		white-space: pre;
+	.waiting-dots {
+		display: inline-block;
+		width: 3ch;
 	}
 
-	.ascii-tagline {
-		margin-top: 18px;
-		color: #7ee787;
-		font-size: 0.8em;
-		font-weight: 700;
-		letter-spacing: 0.32em;
+	.waiting-dots::after {
+		content: "";
+		animation: waiting-dots 2.4s steps(1, end) infinite;
 	}
 
 	.command {
@@ -493,6 +614,20 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	.directory-list a:hover {
 		color: #a5d6ff;
 		text-decoration: underline;
+	}
+
+	.hint {
+		margin: 8px 0 18px;
+		color: #68707c;
+		font-size: 0.78em;
+	}
+
+	.hint strong {
+		color: #8b949e;
+	}
+
+	.hint span {
+		margin-left: 0.8em;
 	}
 
 	.current-line {
@@ -612,12 +747,37 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 		}
 	}
 
-	@media (max-width: 1240px) {
-		.terminal-intro {
-			display: block;
+	@keyframes waiting-dots {
+		0%,
+		24% {
+			content: "";
 		}
 
-		.ascii-brand {
+		25%,
+		49% {
+			content: ".";
+		}
+
+		50%,
+		74% {
+			content: "..";
+		}
+
+		75%,
+		100% {
+			content: "...";
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.waiting-dots::after {
+			content: "...";
+			animation: none;
+		}
+	}
+
+	@media (max-width: 900px) {
+		.ghost-text {
 			display: none;
 		}
 	}
@@ -636,7 +796,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 		}
 
 		.terminal {
-			padding: 48px 16px 80px;
+			padding: 48px 20px 80px;
 		}
 
 		.field {
@@ -659,6 +819,11 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 		:global(#terminal-history .history-directory-list) {
 			gap: 20px;
+		}
+
+		.hint span {
+			display: block;
+			margin-left: 0;
 		}
 	}
 </style>
