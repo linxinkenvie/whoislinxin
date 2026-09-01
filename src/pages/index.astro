@@ -1,5 +1,6 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
+import TerminalHeader from '../components/TerminalHeader.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 ---
 
@@ -11,19 +12,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 	<body>
 		<main class="terminal-window">
-			<header class="terminal-bar">
-				<div class="window-controls" aria-hidden="true">
-					<span></span>
-					<span></span>
-					<span></span>
-				</div>
-
-				<div class="terminal-title">
-					linxin@whoislinxin: ~
-				</div>
-
-				<div class="terminal-spacer"></div>
-			</header>
+			<TerminalHeader />
 
 			<pre class="ghost-text" aria-hidden="true"><span class="ghost-shell">linxin@whoislinxin:~$ whois --deep linxin &amp;</span>
 <span class="ghost-ascii">[1] 42069
@@ -465,47 +454,6 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 		background: #090c10;
 	}
 
-	.terminal-bar {
-		height: 48px;
-		display: grid;
-		grid-template-columns: 1fr auto 1fr;
-		align-items: center;
-		padding: 0 16px;
-		box-sizing: border-box;
-		background: #161b22;
-		border-bottom: 1px solid #282f38;
-		user-select: none;
-	}
-
-	.window-controls {
-		display: flex;
-		gap: 8px;
-	}
-
-	.window-controls span {
-		width: 12px;
-		height: 12px;
-		border-radius: 50%;
-		background: #525a66;
-	}
-
-	.window-controls span:nth-child(1) {
-		background: #ff5f57;
-	}
-
-	.window-controls span:nth-child(2) {
-		background: #febc2e;
-	}
-
-	.window-controls span:nth-child(3) {
-		background: #28c840;
-	}
-
-	.terminal-title {
-		color: #8b949e;
-		font-size: 0.8rem;
-	}
-
 	.terminal {
 		position: relative;
 		z-index: 2;
@@ -794,18 +742,6 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	}
 
 	@media (max-width: 640px) {
-		.terminal-bar {
-			grid-template-columns: auto 1fr;
-		}
-
-		.terminal-title {
-			text-align: right;
-		}
-
-		.terminal-spacer {
-			display: none;
-		}
-
 		.terminal {
 			padding: 48px 20px 80px;
 		}
