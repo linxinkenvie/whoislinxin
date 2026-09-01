@@ -1,0 +1,138 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import TerminalHeader from '../components/TerminalHeader.astro';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title="404 — Page not found"
+			description="The requested page could not be found."
+		/>
+	</head>
+
+	<body>
+		<TerminalHeader />
+
+		<main class="not-found">
+			<p class="command">
+				<span class="user">linxin@whoislinxin</span><span class="separator">:</span><span
+					class="path">~</span
+				><span class="prompt">$</span>
+				<span>curl --fail "$REQUEST_URI"</span>
+			</p>
+
+			<section class="response" aria-labelledby="error-title">
+				<p>HTTP/2 404</p>
+				<h1 id="error-title">Page not found</h1>
+				<p>The requested path does not exist.</p>
+			</section>
+
+			<p class="command current-line">
+				<span class="user">linxin@whoislinxin</span><span class="separator">:</span><span
+					class="path">~</span
+				><span class="prompt">$</span>
+				<a href="/">cd ~</a>
+			</p>
+		</main>
+	</body>
+</html>
+
+<style>
+	:global(html),
+	:global(body) {
+		margin: 0;
+		min-height: 100%;
+		background: #090c10;
+	}
+
+	:global(body) {
+		color: #d7dde5;
+		font-family:
+			"SFMono-Regular",
+			Consolas,
+			"Liberation Mono",
+			Menlo,
+			monospace;
+	}
+
+	.not-found {
+		width: 100%;
+		max-width: none;
+		box-sizing: border-box;
+		margin: 0;
+		padding: 72px clamp(20px, 6.5vw, 120px) 120px;
+		font-size: clamp(1rem, 1.05vw, 1.2rem);
+		line-height: 1.75;
+	}
+
+	.command {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		margin: 0 0 22px;
+	}
+
+	.user {
+		color: #7ee787;
+		font-weight: 700;
+	}
+
+	.separator {
+		color: #8b949e;
+	}
+
+	.path {
+		color: #79c0ff;
+		font-weight: 700;
+	}
+
+	.prompt {
+		margin-right: 0.65rem;
+		color: #d2a8ff;
+	}
+
+	.response {
+		margin: 0 0 46px;
+		padding-left: 24px;
+	}
+
+	.response p,
+	.response h1 {
+		margin: 0;
+		color: inherit;
+		font: inherit;
+	}
+
+	.response h1 {
+		color: #ff7b72;
+		font-weight: 700;
+	}
+
+	.current-line {
+		margin-bottom: 0;
+	}
+
+	.current-line a {
+		color: #79c0ff;
+		font-weight: 700;
+		text-decoration: none;
+	}
+
+	.current-line a:hover,
+	.current-line a:focus-visible {
+		color: #a5d6ff;
+		text-decoration: underline;
+	}
+
+	@media (max-width: 640px) {
+		.not-found {
+			padding: 48px 20px 80px;
+		}
+
+		.response {
+			padding-left: 12px;
+		}
+	}
+</style>
