@@ -1,5 +1,4 @@
 ---
-import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
@@ -15,100 +14,198 @@ const posts = (await getCollection('blog')).sort(
 <!doctype html>
 <html lang="en">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-		<style>
-			main {
-				width: 960px;
-			}
-			ul {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 2rem;
-				list-style-type: none;
-				margin: 0;
-				padding: 0;
-			}
-			ul li {
-				width: calc(50% - 1rem);
-			}
-			ul li * {
-				text-decoration: none;
-				transition: 0.2s ease;
-			}
-			ul li:first-child {
-				width: 100%;
-				margin-bottom: 1rem;
-				text-align: center;
-			}
-			ul li:first-child img {
-				width: 100%;
-			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
-			ul li img {
-				margin-bottom: 0.5rem;
-				border-radius: 12px;
-			}
-			ul li a {
-				display: block;
-			}
-			.title {
-				margin: 0;
-				color: rgb(var(--black));
-				line-height: 1;
-			}
-			.date {
-				margin: 0;
-				color: rgb(var(--gray));
-			}
-			ul li a:hover h4,
-			ul li a:hover .date {
-				color: rgb(var(--accent));
-			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
-			}
-			@media (max-width: 720px) {
-				ul {
-					gap: 0.5em;
-				}
-				ul li {
-					width: 100%;
-					text-align: center;
-				}
-				ul li:first-child {
-					margin-bottom: 0;
-				}
-				ul li:first-child .title {
-					font-size: 1.563em;
-				}
-			}
-		</style>
+		<BaseHead title={`Blog — ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
 	</head>
+
 	<body>
 		<Header />
-		<main>
-			<section>
-				<ul>
-					{
-						posts.map((post) => (
-							<li>
-								<a href={`/blog/${post.id}/`}>
-									{post.data.heroImage && (
-										<Image width={720} height={360} src={post.data.heroImage} alt="" />
-									)}
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
-								</a>
-							</li>
-						))
-					}
-				</ul>
+
+		<main class="blog-shell">
+			<header class="blog-intro">
+				<p class="location">~/blog</p>
+				<h1>Blog</h1>
+				<p>
+					Notes on AI, programming languages, Linux, software, and whatever else seems
+					worth writing down.
+				</p>
+			</header>
+
+			<section aria-label="Articles">
+				{
+					posts.length > 0 ? (
+						<ol class="post-list">
+							{posts.map((post) => (
+								<li class="post-entry">
+									<article>
+										<p class="post-date">
+											<FormattedDate date={post.data.pubDate} />
+										</p>
+										<h2>
+											<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+										</h2>
+										<p class="post-summary">{post.data.description}</p>
+									</article>
+								</li>
+							))}
+						</ol>
+					) : (
+						<div class="empty-state">
+							<p>No posts yet.</p>
+							<p>The cursor is still blinking.</p>
+						</div>
+					)
+				}
 			</section>
 		</main>
+
 		<Footer />
 	</body>
 </html>
+
+<style>
+	:global(html),
+	:global(body) {
+		margin: 0;
+		min-height: 100%;
+		background: #fafafa;
+	}
+
+	:global(body) {
+		color: #1b1f23;
+	}
+
+	.blog-shell {
+		width: 760px;
+		max-width: calc(100% - 40px);
+		box-sizing: border-box;
+		margin: 0 auto;
+		padding: 72px 0 96px;
+	}
+
+	.location {
+		margin: 0 0 1rem;
+		color: #7b8490;
+		font-family:
+			"SFMono-Regular",
+			Consolas,
+			"Liberation Mono",
+			Menlo,
+			monospace;
+		font-size: 0.84rem;
+	}
+
+	.blog-intro {
+		margin-bottom: 3.75rem;
+	}
+
+	.blog-intro h1 {
+		margin: 0 0 1rem;
+		color: #1b1f23;
+		font-size: clamp(3rem, 8vw, 4.75rem);
+		letter-spacing: -0.045em;
+		line-height: 0.98;
+	}
+
+	.blog-intro > p:last-child {
+		max-width: 620px;
+		margin: 0;
+		color: #5f6873;
+		font-size: 1.12rem;
+		line-height: 1.65;
+	}
+
+	.post-list {
+		margin: 0;
+		padding: 0;
+		border-top: 1px solid #dfe2e5;
+		list-style: none;
+	}
+
+	.post-entry {
+		padding: 2.1rem 0 2.25rem;
+		border-bottom: 1px solid #dfe2e5;
+	}
+
+	.post-date {
+		margin: 0 0 0.6rem;
+		color: #737d88;
+		font-family:
+			"SFMono-Regular",
+			Consolas,
+			"Liberation Mono",
+			Menlo,
+			monospace;
+		font-size: 0.82rem;
+		letter-spacing: 0.025em;
+	}
+
+	.post-entry h2 {
+		margin: 0 0 0.55rem;
+		font-size: clamp(1.65rem, 4vw, 2.15rem);
+		letter-spacing: -0.025em;
+		line-height: 1.15;
+	}
+
+	.post-entry h2 a {
+		color: #2f6b95;
+		text-decoration: none;
+		text-decoration-thickness: 0.08em;
+		text-underline-offset: 0.16em;
+	}
+
+	.post-entry h2 a:hover,
+	.post-entry h2 a:focus-visible {
+		color: #174f78;
+		text-decoration: underline;
+	}
+
+	.post-summary {
+		max-width: 680px;
+		margin: 0;
+		color: #5f6873;
+		font-size: 1.04rem;
+		line-height: 1.65;
+	}
+
+	.empty-state {
+		padding: 2.25rem 0;
+		border-top: 1px solid #dfe2e5;
+		border-bottom: 1px solid #dfe2e5;
+	}
+
+	.empty-state p {
+		margin: 0;
+	}
+
+	.empty-state p:first-child {
+		color: #1b1f23;
+		font-size: 1.2rem;
+		font-weight: 700;
+	}
+
+	.empty-state p:last-child {
+		color: #737d88;
+		font-family:
+			"SFMono-Regular",
+			Consolas,
+			"Liberation Mono",
+			Menlo,
+			monospace;
+		font-size: 0.86rem;
+	}
+
+	@media (max-width: 640px) {
+		.blog-shell {
+			max-width: calc(100% - 32px);
+			padding: 48px 0 72px;
+		}
+
+		.blog-intro {
+			margin-bottom: 2.75rem;
+		}
+
+		.post-entry {
+			padding: 1.75rem 0;
+		}
+	}
+</style>

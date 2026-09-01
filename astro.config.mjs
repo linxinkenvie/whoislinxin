@@ -10,5 +10,8 @@ export default defineConfig({
 	build: {
 		inlineStylesheets: 'never',
 	},
+	markdown: {
+		syntaxHighlight: false,
+	},
 	integrations: [mdx(), sitemap()],
 });
