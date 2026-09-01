@@ -10,40 +10,145 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	<head>
 		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
 	</head>
+
 	<body>
 		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
+
+		<main class="terminal-page">
+			<section class="terminal">
+				<div class="command">
+					<span class="prompt">$</span> whois linxin
+				</div>
+
+				<div class="whois">
+					<div class="field">
+						<span class="label">NAME</span>
+						<span>Linxin</span>
+					</div>
+
+					<div class="field">
+						<span class="label">STATUS</span>
+						<span>Building things.</span>
+					</div>
+
+					<div class="field">
+						<span class="label">INTERESTS</span>
+						<span>AI / Programming Languages / Linux</span>
+					</div>
+
+					<div class="field">
+						<span class="label">DOMAIN</span>
+						<span>whoislinxin.com</span>
+					</div>
+				</div>
+
+				<nav class="links" aria-label="Main links">
+					<a href="/blog/">Blog</a>
+					<a href="/about/">About</a>
+					<a href="https://github.com/linxinkenvie" target="_blank" rel="noreferrer">
+						GitHub
+					</a>
+				</nav>
+
+				<div class="cursor-line">
+					<span class="prompt">$</span>
+					<span class="cursor"></span>
+				</div>
+			</section>
 		</main>
+
 		<Footer />
 	</body>
 </html>
+
+<style>
+	.terminal-page {
+		min-height: 65vh;
+		display: flex;
+		align-items: center;
+	}
+
+	.terminal {
+		width: 100%;
+		font-family:
+			"SFMono-Regular",
+			Consolas,
+			"Liberation Mono",
+			Menlo,
+			monospace;
+	}
+
+	.command {
+		font-size: clamp(1.5rem, 4vw, 2.5rem);
+		font-weight: 700;
+		margin-bottom: 3rem;
+	}
+
+	.prompt {
+		opacity: 0.55;
+		margin-right: 0.5rem;
+	}
+
+	.whois {
+		display: grid;
+		gap: 1.6rem;
+		margin-bottom: 3rem;
+	}
+
+	.field {
+		display: grid;
+		grid-template-columns: 9rem 1fr;
+		gap: 1rem;
+	}
+
+	.label {
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		opacity: 0.55;
+	}
+
+	.links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1.5rem;
+		margin-bottom: 3rem;
+	}
+
+	.links a {
+		text-decoration: none;
+		font-weight: 700;
+	}
+
+	.links a::before {
+		content: ">";
+		margin-right: 0.4rem;
+		opacity: 0.55;
+	}
+
+	.cursor-line {
+		display: flex;
+		align-items: center;
+		height: 1.5rem;
+	}
+
+	.cursor {
+		width: 0.65rem;
+		height: 1.2rem;
+		background: currentColor;
+		display: inline-block;
+		animation: blink 1s steps(1) infinite;
+	}
+
+	@keyframes blink {
+		50% {
+			opacity: 0;
+		}
+	}
+
+	@media (max-width: 600px) {
+		.field {
+			grid-template-columns: 1fr;
+			gap: 0.25rem;
+		}
+	}
+</style>
