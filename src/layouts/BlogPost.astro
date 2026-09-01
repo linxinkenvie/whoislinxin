@@ -10,6 +10,7 @@ type Props = CollectionEntry<'blog'>['data'];
 
 const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 const pagePath = `~${Astro.url.pathname.replace(/\/$/, '')}`;
+const isBlogPost = Astro.url.pathname.startsWith('/blog/') && Astro.url.pathname !== '/blog/';
 ---
 
 <html lang="en">
@@ -20,36 +21,52 @@ const pagePath = `~${Astro.url.pathname.replace(/\/$/, '')}`;
 	<body>
 		<Header />
 
-		<main class="article-shell">
-			<article>
-				<header class="article-header">
-					<p class="article-path">{pagePath}</p>
-					<h1>{title}</h1>
-					<div class="article-meta">
-						<FormattedDate date={pubDate} />
-						{
-							updatedDate && (
-								<span>
-									Updated <FormattedDate date={updatedDate} />
-								</span>
-							)
-						}
+		<div class="page-shell">
+			{isBlogPost && (
+				<a
+					class="back-to-blog"
+					href="/blog/"
+					aria-label="Back to blog"
+					aria-keyshortcuts="Escape"
+					title="Back to blog (Esc)"
+				>
+					←
+				</a>
+			)}
+
+			<main class="article-shell">
+				<article>
+					<header class="article-header">
+						<p class="article-path">{pagePath}</p>
+						<h1>{title}</h1>
+						<div class="article-meta">
+							<FormattedDate date={pubDate} />
+							{
+								updatedDate && (
+									<span>
+										Updated <FormattedDate date={updatedDate} />
+									</span>
+								)
+							}
+						</div>
+					</header>
+
+					{heroImage && (
+						<figure class="hero-image">
+							<Image width={1020} height={510} src={heroImage} alt="" />
+						</figure>
+					)}
+
+					<div class="prose">
+						<slot />
 					</div>
-				</header>
-
-				{heroImage && (
-					<figure class="hero-image">
-						<Image width={1020} height={510} src={heroImage} alt="" />
-					</figure>
-				)}
-
-				<div class="prose">
-					<slot />
-				</div>
-			</article>
-		</main>
+				</article>
+			</main>
+		</div>
 
 		<Footer />
+
+		{isBlogPost && <script is:inline src="/scripts/blog-shortcuts.js" defer></script>}
 	</body>
 </html>
 
@@ -63,6 +80,45 @@ const pagePath = `~${Astro.url.pathname.replace(/\/$/, '')}`;
 
 	:global(body) {
 		color: #1b1f23;
+	}
+
+	.page-shell {
+		position: relative;
+	}
+
+	.back-to-blog {
+		position: absolute;
+		top: 16px;
+		left: 18px;
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+		border-radius: 6px;
+		color: #8b949e;
+		font-family:
+			"SFMono-Regular",
+			Consolas,
+			"Liberation Mono",
+			Menlo,
+			monospace;
+		font-size: 1.35rem;
+		text-decoration: none;
+		transition:
+			color 120ms ease,
+			background 120ms ease;
+	}
+
+	.back-to-blog:hover,
+	.back-to-blog:focus-visible {
+		background: rgb(126 231 135 / 0.08);
+		color: #7ee787;
+	}
+
+	.back-to-blog:focus-visible {
+		outline: 1px solid #7ee787;
 	}
 
 	.article-shell {
@@ -223,6 +279,11 @@ const pagePath = `~${Astro.url.pathname.replace(/\/$/, '')}`;
 	}
 
 	@media (max-width: 640px) {
+		.back-to-blog {
+			top: 10px;
+			left: 10px;
+		}
+
 		.article-shell {
 			max-width: calc(100% - 32px);
 			padding: 48px 0 72px;

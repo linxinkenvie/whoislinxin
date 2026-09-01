@@ -71,10 +71,14 @@ const posts = (await getCollection('blog')).sort(
 	}
 
 	:global(body) {
+		display: flex;
+		min-height: 100vh;
+		flex-direction: column;
 		color: #1b1f23;
 	}
 
 	.blog-shell {
+		flex: 1 0 auto;
 		width: 760px;
 		max-width: calc(100% - 40px);
 		box-sizing: border-box;
