@@ -58,6 +58,71 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 					<div class="command">
 						<span class="user">linxin@whoislinxin</span><span class="separator">:</span><span class="path">~</span><span class="prompt">$</span>
+						<span>progress</span>
+					</div>
+
+					<div class="output progress-output">
+						<div class="progress-row">
+							<span class="progress-name">NEW ERAS</span>
+							<div
+								class="progress-track"
+								role="progressbar"
+								aria-label="New eras"
+								aria-valuemin="0"
+								aria-valuemax="100"
+								aria-valuenow="18"
+							>
+								<div class="progress-fill progress-18"></div>
+							</div>
+							<span class="progress-value">18%</span>
+						</div>
+
+						<div class="progress-row">
+							<span class="progress-name">ART</span>
+							<div
+								class="progress-track"
+								role="progressbar"
+								aria-label="Art"
+								aria-valuemin="0"
+								aria-valuemax="100"
+								aria-valuenow="1"
+							>
+								<div class="progress-fill progress-1"></div>
+							</div>
+							<span class="progress-value">1%</span>
+						</div>
+
+						<div class="progress-row">
+							<span class="progress-name">MUSIC</span>
+							<div
+								class="progress-track"
+								role="progressbar"
+								aria-label="Music"
+								aria-valuemin="0"
+								aria-valuemax="100"
+								aria-valuenow="0"
+							>
+								<div class="progress-fill progress-0"></div>
+							</div>
+							<span class="progress-value">0%</span>
+						</div>
+
+						<div class="progress-row">
+							<span class="progress-name">LIFE EXPERIENCE</span>
+							<div
+								class="progress-track infinite-track"
+								role="progressbar"
+								aria-label="Life experience"
+								aria-valuetext="No end"
+							>
+								<div class="infinite-bar"></div>
+							</div>
+							<span class="progress-value no-end">NO END</span>
+						</div>
+					</div>
+
+					<div class="command">
+						<span class="user">linxin@whoislinxin</span><span class="separator">:</span><span class="path">~</span><span class="prompt">$</span>
 						<span>ls</span>
 					</div>
 
@@ -114,6 +179,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 			'pwd',
 			'whoami',
 			'whois linxin',
+			'progress',
 			'cd blog',
 			'cd about',
 			'cd github',
@@ -184,6 +250,61 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 			historyOutput.append(nav);
 		};
 
+		const appendProgress = () => {
+			const output = document.createElement('div');
+			output.className = 'history-output progress-output';
+
+			const createMeasuredRow = (
+				name: string,
+				value: string,
+				valueNow: number,
+				fillClass: string,
+			) => {
+				const row = document.createElement('div');
+				row.className = 'progress-row';
+
+				const label = createSpan('progress-name', name);
+				const track = document.createElement('div');
+				track.className = 'progress-track';
+				track.setAttribute('role', 'progressbar');
+				track.setAttribute('aria-label', name.toLowerCase());
+				track.setAttribute('aria-valuemin', '0');
+				track.setAttribute('aria-valuemax', '100');
+				track.setAttribute('aria-valuenow', String(valueNow));
+
+				const fill = document.createElement('div');
+				fill.className = `progress-fill ${fillClass}`;
+				track.append(fill);
+				row.append(label, track, createSpan('progress-value', value));
+				return row;
+			};
+
+			output.append(
+				createMeasuredRow('NEW ERAS', '18%', 18, 'progress-18'),
+				createMeasuredRow('ART', '1%', 1, 'progress-1'),
+				createMeasuredRow('MUSIC', '0%', 0, 'progress-0'),
+			);
+
+			const lifeRow = document.createElement('div');
+			lifeRow.className = 'progress-row';
+			const lifeTrack = document.createElement('div');
+			lifeTrack.className = 'progress-track infinite-track';
+			lifeTrack.setAttribute('role', 'progressbar');
+			lifeTrack.setAttribute('aria-label', 'life experience');
+			lifeTrack.setAttribute('aria-valuetext', 'No end');
+
+			const infiniteBar = document.createElement('div');
+			infiniteBar.className = 'infinite-bar';
+			lifeTrack.append(infiniteBar);
+			lifeRow.append(
+				createSpan('progress-name', 'LIFE EXPERIENCE'),
+				lifeTrack,
+				createSpan('progress-value no-end', 'NO END'),
+			);
+			output.append(lifeRow);
+			historyOutput.append(output);
+		};
+
 		const navigateTo = (path: string) => {
 			appendLines([`→ ${path}`], 'success');
 			window.setTimeout(() => window.location.assign(path), 180);
@@ -235,6 +356,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 						'  whoami          print current user',
 						'  pwd             print working directory',
 						'  ls              list destinations',
+						'  progress        show current progress',
 						'',
 						'  cd blog         open the blog',
 						'  cd about        open the about page',
@@ -262,6 +384,10 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 						'INTERESTS   AI / Programming Languages / Linux',
 						'DOMAIN      whoislinxin.com',
 					]);
+					break;
+
+				case 'progress':
+					appendProgress();
 					break;
 
 				case 'ls':
@@ -546,6 +672,71 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 		gap: 10px;
 	}
 
+	:global(.progress-output) {
+		display: grid;
+		gap: 10px;
+		max-width: 720px;
+	}
+
+	:global(.progress-row) {
+		display: grid;
+		grid-template-columns: 190px minmax(180px, 1fr) 70px;
+		align-items: center;
+		gap: 16px;
+	}
+
+	:global(.progress-name) {
+		color: #8b949e;
+		font-weight: 700;
+		letter-spacing: 0.06em;
+	}
+
+	:global(.progress-track) {
+		position: relative;
+		height: 10px;
+		overflow: hidden;
+		border: 1px solid #30363d;
+		background: #0d1117;
+	}
+
+	:global(.progress-fill) {
+		height: 100%;
+		background: #7ee787;
+		box-shadow: 0 0 8px rgb(126 231 135 / 0.2);
+	}
+
+	:global(.progress-18) {
+		width: 18%;
+	}
+
+	:global(.progress-1) {
+		width: 1%;
+	}
+
+	:global(.progress-0) {
+		width: 0;
+	}
+
+	:global(.progress-value) {
+		color: #79c0ff;
+		text-align: right;
+		white-space: nowrap;
+	}
+
+	:global(.no-end) {
+		color: #d2a8ff;
+	}
+
+	:global(.infinite-bar) {
+		position: absolute;
+		top: 0;
+		left: -28%;
+		width: 28%;
+		height: 100%;
+		background: linear-gradient(90deg, transparent, #7ee787, transparent);
+		animation: endless-progress 2.2s linear infinite;
+	}
+
 	.field {
 		display: grid;
 		grid-template-columns: 150px 1fr;
@@ -728,9 +919,20 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 		}
 	}
 
+	@keyframes endless-progress {
+		to {
+			left: 100%;
+		}
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.waiting-dots::after {
 			content: "...";
+			animation: none;
+		}
+
+		:global(.infinite-bar) {
+			left: 36%;
 			animation: none;
 		}
 	}
@@ -758,6 +960,23 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 		:global(#terminal-history .history-output) {
 			padding-left: 12px;
+		}
+
+		:global(.progress-row) {
+			grid-template-columns: 1fr 64px;
+			gap: 7px 12px;
+		}
+
+		:global(.progress-name) {
+			grid-column: 1 / -1;
+		}
+
+		:global(.progress-track) {
+			grid-column: 1;
+		}
+
+		:global(.progress-value) {
+			grid-column: 2;
 		}
 
 		.directory-list {
