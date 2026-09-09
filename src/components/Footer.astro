@@ -1,8 +1,13 @@
 ---
+interface Props {
+	theme?: 'light' | 'dark';
+}
+
+const { theme = 'light' } = Astro.props;
 const today = new Date();
 ---
 
-<footer>
+<footer class:list={{ dark: theme === 'dark' }}>
 	<p>&copy; {today.getFullYear()} Linxin.</p>
 	<p class="meta">
 		<a href="https://github.com/linxinkenvie" target="_blank" rel="noreferrer">
@@ -24,6 +29,16 @@ const today = new Date();
 		text-align: center;
 	}
 
+	footer.dark {
+		border-top-color: var(--feature-rule, #202020);
+		background: var(--feature-bg, #000);
+		color: var(--feature-meta, #777);
+		transition:
+			background-color 160ms ease,
+			border-color 160ms ease,
+			color 160ms ease;
+	}
+
 	footer p {
 		margin: 0.15rem 0;
 	}
@@ -40,5 +55,9 @@ const today = new Date();
 	.meta a:hover {
 		color: #2f6b95;
 		text-decoration: underline;
+	}
+
+	.dark .meta a:hover {
+		color: #7ee787;
 	}
 </style>

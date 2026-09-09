@@ -8,18 +8,58 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const {
+	title,
+	description,
+	pubDate,
+	updatedDate,
+	heroImage,
+	theme = 'default',
+	eyebrow,
+	displayTitle,
+	lang = 'en',
+	translationKey,
+} = Astro.props;
 const pagePath = `~${Astro.url.pathname.replace(/\/$/, '')}`;
 const isBlogPost = Astro.url.pathname.startsWith('/blog/') && Astro.url.pathname !== '/blog/';
+const isFeatureArticle = theme === 'feature';
+const currentLanguage: 'zh' | 'en' = lang === 'zh-CN' ? 'zh' : 'en';
+const chinesePath = translationKey ? `/blog/${translationKey}/` : undefined;
+const englishPath = translationKey ? `/blog/${translationKey}/en/` : undefined;
+const targetLanguage: 'zh' | 'en' = currentLanguage === 'zh' ? 'en' : 'zh';
+const languageSwitch =
+	chinesePath && englishPath
+		? {
+				href: targetLanguage === 'zh' ? chinesePath : englishPath,
+				label: targetLanguage === 'zh' ? '中文' : 'EN',
+				targetLanguage,
+			}
+		: undefined;
+const blogHref = currentLanguage === 'en' ? '/blog/en/' : '/blog/';
 ---
 
-<html lang="en">
+<html lang={lang}>
 	<head>
 		<BaseHead title={title} description={description} />
+		{chinesePath && <link rel="alternate" hreflang="zh-CN" href={new URL(chinesePath, Astro.site)} />}
+		{englishPath && <link rel="alternate" hreflang="en" href={new URL(englishPath, Astro.site)} />}
+		{englishPath && <link rel="alternate" hreflang="x-default" href={new URL(englishPath, Astro.site)} />}
+		{isFeatureArticle && <script is:inline src="/scripts/article-theme.js"></script>}
+		{
+			chinesePath && englishPath && (
+				<script
+					is:inline
+					src="/scripts/article-language.js"
+					data-current-language={currentLanguage}
+					data-chinese-path={chinesePath}
+					data-english-path={englishPath}
+				></script>
+			)
+		}
 	</head>
 
-	<body>
-		<Header />
+	<body class:list={{ 'feature-article': isFeatureArticle }}>
+		<Header showThemeToggle={isFeatureArticle} {blogHref} {languageSwitch} />
 
 		<div class="page-shell">
 			{isBlogPost && (
@@ -38,9 +78,12 @@ const isBlogPost = Astro.url.pathname.startsWith('/blog/') && Astro.url.pathname
 				<article>
 					<header class="article-header">
 						<p class="article-path">{pagePath}</p>
-						<h1>{title}</h1>
+						<h1>
+							{displayTitle ? displayTitle.map((line) => <span class="title-line">{line}</span>) : title}
+						</h1>
 						<div class="article-meta">
 							<FormattedDate date={pubDate} />
+							{eyebrow && <span class="article-eyebrow">{eyebrow}</span>}
 							{
 								updatedDate && (
 									<span>
@@ -49,6 +92,7 @@ const isBlogPost = Astro.url.pathname.startsWith('/blog/') && Astro.url.pathname
 								)
 							}
 						</div>
+						{isFeatureArticle && <p class="article-description">{description}</p>}
 					</header>
 
 					{heroImage && (
@@ -64,7 +108,7 @@ const isBlogPost = Astro.url.pathname.startsWith('/blog/') && Astro.url.pathname
 			</main>
 		</div>
 
-		<Footer />
+		<Footer theme={isFeatureArticle ? 'dark' : 'light'} />
 
 		{isBlogPost && <script is:inline src="/scripts/blog-shortcuts.js" defer></script>}
 	</body>
@@ -166,6 +210,10 @@ const isBlogPost = Astro.url.pathname.startsWith('/blog/') && Astro.url.pathname
 			Menlo,
 			monospace;
 		font-size: 0.82rem;
+	}
+
+	.article-description {
+		display: none;
 	}
 
 	.hero-image {
@@ -278,6 +326,182 @@ const isBlogPost = Astro.url.pathname.startsWith('/blog/') && Astro.url.pathname
 		border-top: 1px solid #dfe2e5;
 	}
 
+	:global(body.feature-article) {
+		--feature-bg: #000;
+		--feature-text: #f1f1f1;
+		--feature-heading: #fff;
+		--feature-muted: #b8b8b8;
+		--feature-meta: #8a8a8a;
+		--feature-meta-strong: #a5a5a5;
+		--feature-code-bg: #181818;
+		--feature-quote: #c7c7c7;
+		--feature-rule: #2a2a2a;
+		--feature-link: #a8c7fa;
+		--feature-link-hover: #d3e3fd;
+		--feature-control: #777;
+		--feature-control-hover: #f5f5f5;
+
+		background: var(--feature-bg);
+		color: var(--feature-text);
+		color-scheme: dark;
+	}
+
+	:global(html[data-article-theme='light'] body.feature-article) {
+		--feature-bg: #fff;
+		--feature-text: #171717;
+		--feature-heading: #000;
+		--feature-muted: #4f4f4f;
+		--feature-meta: #696969;
+		--feature-meta-strong: #4d4d4d;
+		--feature-code-bg: #f1f1f1;
+		--feature-quote: #444;
+		--feature-rule: #dedede;
+		--feature-link: #285f8f;
+		--feature-link-hover: #153f64;
+		--feature-control: #777;
+		--feature-control-hover: #111;
+
+		color-scheme: light;
+	}
+
+	:global(body.feature-article) .page-shell {
+		background: var(--feature-bg);
+		transition: background-color 160ms ease;
+	}
+
+	:global(body.feature-article) .back-to-blog {
+		color: var(--feature-control);
+	}
+
+	:global(body.feature-article) .back-to-blog:hover,
+	:global(body.feature-article) .back-to-blog:focus-visible {
+		background: rgb(126 231 135 / 0.08);
+		color: #7ee787;
+	}
+
+	:global(body.feature-article) .article-shell {
+		width: 1120px;
+		max-width: calc(100% - 40px);
+		padding: 0 0 120px;
+	}
+
+	:global(body.feature-article) .article-header {
+		min-height: min(720px, calc(100svh - 48px));
+		box-sizing: border-box;
+		margin: 0;
+		padding: 72px 0 96px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+	}
+
+	:global(body.feature-article) .article-path {
+		display: none;
+	}
+
+	:global(body.feature-article) .article-header h1 {
+		max-width: 900px;
+		margin: 0 0 2rem;
+		color: var(--feature-heading);
+		font-size: clamp(3rem, 4.7vw, 4.75rem);
+		font-weight: 400;
+		letter-spacing: -0.035em;
+		line-height: 1.02;
+		text-wrap: balance;
+	}
+
+	:global(.title-line) {
+		display: block;
+	}
+
+	:global(.title-line + .title-line) {
+		transform: translateX(clamp(8px, 1.5vw, 20px));
+	}
+
+	:global(body.feature-article) .article-meta {
+		order: -1;
+		justify-content: center;
+		margin-bottom: 2.6rem;
+		color: var(--feature-meta);
+		font-family: var(--font-atkinson);
+		font-size: 0.88rem;
+		letter-spacing: 0;
+	}
+
+	:global(body.feature-article) .article-eyebrow {
+		color: var(--feature-meta-strong);
+	}
+
+	:global(body.feature-article) .article-description {
+		display: block;
+		max-width: 620px;
+		margin: 0;
+		color: var(--feature-muted);
+		font-size: clamp(1.08rem, 1.8vw, 1.28rem);
+		line-height: 1.55;
+	}
+
+	:global(body.feature-article) .prose {
+		width: 620px;
+		max-width: 100%;
+		margin: 0 auto;
+		color: var(--feature-text);
+		font-size: 1.075rem;
+		line-height: 1.84;
+	}
+
+	:global(body.feature-article .prose p) {
+		margin-bottom: 1.8em;
+	}
+
+	:global(body.feature-article .prose h2),
+	:global(body.feature-article .prose h3),
+	:global(body.feature-article .prose h4) {
+		color: var(--feature-heading);
+		font-weight: 400;
+	}
+
+	:global(body.feature-article .prose h2) {
+		margin: 3.5em 0 1em;
+		font-size: clamp(2rem, 4vw, 3rem);
+	}
+
+	:global(body.feature-article .prose a) {
+		color: var(--feature-link);
+	}
+
+	:global(body.feature-article .prose a:hover),
+	:global(body.feature-article .prose a:focus-visible) {
+		color: var(--feature-link-hover);
+	}
+
+	:global(body.feature-article .prose code) {
+		background: var(--feature-code-bg);
+		color: var(--feature-text);
+	}
+
+	:global(body.feature-article .prose blockquote) {
+		border-left-color: #565656;
+		color: var(--feature-quote);
+	}
+
+	:global(body.feature-article .prose hr) {
+		margin: 5rem 0;
+		border-top-color: var(--feature-rule);
+	}
+
+	:global(body.feature-article .prose img) {
+		position: relative;
+		left: 50%;
+		width: auto;
+		max-width: min(960px, calc(100vw - 40px));
+		margin: 4.5rem 0;
+		border-radius: 0;
+		transform: translateX(-50%);
+	}
+
 	@media (max-width: 640px) {
 		.back-to-blog {
 			top: 10px;
@@ -301,6 +525,45 @@ const isBlogPost = Astro.url.pathname.startsWith('/blog/') && Astro.url.pathname
 			margin-right: -4px;
 			margin-left: -4px;
 			padding: 1.1rem;
+		}
+
+		:global(body.feature-article) .article-shell {
+			max-width: calc(100% - 32px);
+			padding: 0 0 80px;
+		}
+
+		:global(body.feature-article) .article-header {
+			min-height: calc(100svh - 88px);
+			padding: 56px 8px 72px;
+		}
+
+		:global(body.feature-article) .article-header h1 {
+			margin-bottom: 1.5rem;
+			font-size: clamp(2.5rem, 10.5vw, 3.5rem);
+		}
+
+		:global(body.feature-article) .article-meta {
+			margin-bottom: 2rem;
+		}
+
+		:global(body.feature-article) .article-description {
+			max-width: 320px;
+			font-size: 1.05rem;
+		}
+
+		:global(body.feature-article) .prose {
+			font-size: 1.04rem;
+			line-height: 1.82;
+		}
+
+		:global(body.feature-article .prose img) {
+			max-width: calc(100vw - 24px);
+			margin-top: 3rem;
+			margin-bottom: 3rem;
+		}
+
+		:global(body.feature-article .prose hr) {
+			margin: 3.5rem 0;
 		}
 	}
 </style>

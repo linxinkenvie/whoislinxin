@@ -1,3 +1,17 @@
+---
+interface Props {
+	showThemeToggle?: boolean;
+	blogHref?: string;
+	languageSwitch?: {
+		href: string;
+		label: string;
+		targetLanguage: 'zh' | 'en';
+	};
+}
+
+const { showThemeToggle = false, blogHref = '/blog/', languageSwitch } = Astro.props;
+---
+
 <header class="terminal-bar">
 	<div class="window-controls" aria-hidden="true">
 		<span></span>
@@ -8,10 +22,36 @@
 	<a class="terminal-title" href="/" aria-label="Home">linxin@whoislinxin: ~</a>
 
 	<nav class="top-nav" aria-label="Primary navigation">
-		<a href="/blog/">Blog</a>
+		<a href={blogHref}>Blog</a>
 		<a href="https://github.com/linxinkenvie" target="_blank" rel="noreferrer">GitHub</a>
 		<a href="/about/">About</a>
 		<a href="https://x.com/linxinkenvie" target="_blank" rel="noreferrer">X</a>
+		{
+			showThemeToggle && (
+				<button
+					id="article-theme-toggle"
+					class="theme-toggle"
+					type="button"
+					aria-label="Toggle color theme"
+					title="Toggle color theme"
+				>
+					◐ Theme
+				</button>
+			)
+		}
+		{
+			languageSwitch && (
+				<a
+					class="language-switch"
+					href={languageSwitch.href}
+					hreflang={languageSwitch.targetLanguage === 'zh' ? 'zh-CN' : 'en'}
+					data-language-choice={languageSwitch.targetLanguage}
+					aria-label={languageSwitch.targetLanguage === 'zh' ? '切换到中文' : 'Switch to English'}
+				>
+					{languageSwitch.label}
+				</a>
+			)
+		}
 	</nav>
 </header>
 
@@ -91,8 +131,26 @@
 			text-shadow 120ms ease;
 	}
 
+	.theme-toggle {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: #9aa4b2;
+		cursor: pointer;
+		font: inherit;
+		font-size: 0.82rem;
+		font-weight: 600;
+		white-space: nowrap;
+		transition:
+			color 120ms ease,
+			text-shadow 120ms ease;
+	}
+
 	.top-nav a:hover,
-	.top-nav a:focus-visible {
+	.top-nav a:focus-visible,
+	.theme-toggle:hover,
+	.theme-toggle:focus-visible {
 		color: #7ee787;
 		text-shadow: 0 0 8px rgb(126 231 135 / 0.25);
 	}
@@ -100,6 +158,11 @@
 	.top-nav a:focus-visible {
 		outline: none;
 		text-decoration: underline;
+	}
+
+	.theme-toggle:focus-visible {
+		outline: 1px solid #7ee787;
+		outline-offset: 3px;
 	}
 
 	@media (max-width: 640px) {
@@ -125,6 +188,10 @@
 		}
 
 		.top-nav a {
+			font-size: 0.8rem;
+		}
+
+		.theme-toggle {
 			font-size: 0.8rem;
 		}
 	}

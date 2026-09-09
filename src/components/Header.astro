@@ -1,5 +1,17 @@
 ---
 import TerminalHeader from './TerminalHeader.astro';
+
+interface Props {
+	showThemeToggle?: boolean;
+	blogHref?: string;
+	languageSwitch?: {
+		href: string;
+		label: string;
+		targetLanguage: 'zh' | 'en';
+	};
+}
+
+const { showThemeToggle = false, blogHref = '/blog/', languageSwitch } = Astro.props;
 ---
 
-<TerminalHeader />
+<TerminalHeader {showThemeToggle} {blogHref} {languageSwitch} />

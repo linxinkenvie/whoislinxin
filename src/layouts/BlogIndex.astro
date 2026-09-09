@@ -1,0 +1,245 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+import { SITE_TITLE } from '../consts';
+
+interface Props {
+	posts: CollectionEntry<'blog'>[];
+	lang: 'zh-CN' | 'en';
+}
+
+const { posts, lang } = Astro.props;
+const isEnglish = lang === 'en';
+const currentLanguage = isEnglish ? 'en' : 'zh';
+const currentPath = isEnglish ? '/blog/en/' : '/blog/';
+const alternatePath = isEnglish ? '/blog/' : '/blog/en/';
+const description = isEnglish
+	? 'Notes on AI, programming languages, Linux, software, and whatever else seems worth writing down.'
+	: '关于 AI、编程语言、Linux、软件，以及所有值得写下来的东西。';
+const languageSwitch = {
+	href: alternatePath,
+	label: isEnglish ? '中文' : 'EN',
+	targetLanguage: isEnglish ? ('zh' as const) : ('en' as const),
+};
+---
+
+<!doctype html>
+<html lang={lang}>
+	<head>
+		<BaseHead title={`Blog — ${SITE_TITLE}`} description={description} />
+		<link rel="alternate" hreflang="zh-CN" href={new URL('/blog/', Astro.site)} />
+		<link rel="alternate" hreflang="en" href={new URL('/blog/en/', Astro.site)} />
+		<link rel="alternate" hreflang="x-default" href={new URL('/blog/en/', Astro.site)} />
+		<script
+			is:inline
+			src="/scripts/article-language.js"
+			data-current-language={currentLanguage}
+			data-chinese-path="/blog/"
+			data-english-path="/blog/en/"
+		></script>
+	</head>
+
+	<body>
+		<Header blogHref={currentPath} {languageSwitch} />
+
+		<main class="blog-shell">
+			<header class="blog-intro">
+				<p class="location">~/blog</p>
+				<h1>Blog</h1>
+				<p>{description}</p>
+			</header>
+
+			<section aria-label="Articles">
+				{
+					posts.length > 0 ? (
+						<ol class="post-list">
+							{posts.map((post) => (
+								<li class="post-entry">
+									<article>
+										<p class="post-date">
+											<FormattedDate date={post.data.pubDate} />
+										</p>
+										<h2>
+											<a
+												href={
+													isEnglish
+														? `/blog/${post.data.translationKey ?? post.id}/en/`
+														: `/blog/${post.data.translationKey ?? post.id}/`
+												}
+											>
+												{post.data.title}
+											</a>
+										</h2>
+										<p class="post-summary">{post.data.description}</p>
+									</article>
+								</li>
+							))}
+						</ol>
+					) : (
+						<div class="empty-state">
+							<p>{isEnglish ? 'No posts yet.' : '还没有文章。'}</p>
+							<p>{isEnglish ? 'The cursor is still blinking.' : '光标还在闪烁。'}</p>
+						</div>
+					)
+				}
+			</section>
+		</main>
+
+		<Footer />
+	</body>
+</html>
+
+<style>
+	:global(html),
+	:global(body) {
+		margin: 0;
+		min-height: 100%;
+		background: #fafafa;
+	}
+
+	:global(body) {
+		display: flex;
+		min-height: 100vh;
+		flex-direction: column;
+		color: #1b1f23;
+	}
+
+	.blog-shell {
+		flex: 1 0 auto;
+		width: 760px;
+		max-width: calc(100% - 40px);
+		box-sizing: border-box;
+		margin: 0 auto;
+		padding: 72px 0 96px;
+	}
+
+	.location {
+		margin: 0 0 1rem;
+		color: #7b8490;
+		font-family:
+			"SFMono-Regular",
+			Consolas,
+			"Liberation Mono",
+			Menlo,
+			monospace;
+		font-size: 0.84rem;
+	}
+
+	.blog-intro {
+		margin-bottom: 3.75rem;
+	}
+
+	.blog-intro h1 {
+		margin: 0 0 1rem;
+		color: #1b1f23;
+		font-size: clamp(3rem, 8vw, 4.75rem);
+		letter-spacing: -0.045em;
+		line-height: 0.98;
+	}
+
+	.blog-intro > p:last-child {
+		max-width: 620px;
+		margin: 0;
+		color: #5f6873;
+		font-size: 1.12rem;
+		line-height: 1.65;
+	}
+
+	.post-list {
+		margin: 0;
+		padding: 0;
+		border-top: 1px solid #dfe2e5;
+		list-style: none;
+	}
+
+	.post-entry {
+		padding: 2.1rem 0 2.25rem;
+		border-bottom: 1px solid #dfe2e5;
+	}
+
+	.post-date {
+		margin: 0 0 0.6rem;
+		color: #737d88;
+		font-family:
+			"SFMono-Regular",
+			Consolas,
+			"Liberation Mono",
+			Menlo,
+			monospace;
+		font-size: 0.82rem;
+		letter-spacing: 0.025em;
+	}
+
+	.post-entry h2 {
+		margin: 0 0 0.55rem;
+		font-size: clamp(1.65rem, 4vw, 2.15rem);
+		letter-spacing: -0.025em;
+		line-height: 1.15;
+	}
+
+	.post-entry h2 a {
+		color: #2f6b95;
+		text-decoration: none;
+		text-decoration-thickness: 0.08em;
+		text-underline-offset: 0.16em;
+	}
+
+	.post-entry h2 a:hover,
+	.post-entry h2 a:focus-visible {
+		color: #174f78;
+		text-decoration: underline;
+	}
+
+	.post-summary {
+		max-width: 680px;
+		margin: 0;
+		color: #5f6873;
+		font-size: 1.04rem;
+		line-height: 1.65;
+	}
+
+	.empty-state {
+		padding: 2.25rem 0;
+		border-top: 1px solid #dfe2e5;
+		border-bottom: 1px solid #dfe2e5;
+	}
+
+	.empty-state p {
+		margin: 0;
+	}
+
+	.empty-state p:first-child {
+		color: #1b1f23;
+		font-size: 1.2rem;
+		font-weight: 700;
+	}
+
+	.empty-state p:last-child {
+		color: #737d88;
+		font-family:
+			"SFMono-Regular",
+			Consolas,
+			"Liberation Mono",
+			Menlo,
+			monospace;
+		font-size: 0.86rem;
+	}
+
+	@media (max-width: 640px) {
+		.blog-shell {
+			max-width: calc(100% - 32px);
+			padding: 48px 0 72px;
+		}
+
+		.blog-intro {
+			margin-bottom: 2.75rem;
+		}
+
+		.post-entry {
+			padding: 1.75rem 0;
+		}
+	}
+</style>
